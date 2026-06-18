@@ -14,7 +14,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20  # atau 22, tapi 20 lebih stabil untuk Capacitor 5
+          node-version: 20
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -22,25 +22,34 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Install dependencies & Capacitor
+      - name: Install Capacitor
         run: |
-          npm ci  # lebih baik daripada manual create package.json
-          npx cap add android || echo "Android platform already exists"
+          npm init -y
+          npm install @capacitor/core@5 @capacitor/cli@5 @capacitor/android@5
 
-      - name: Copy assets
+      - name: Add Android Platform
+        run: npx cap add android
+
+      - name: Copy Web Assets
         run: npx cap copy android
 
-      - name: Fix Gradle settings
+      - name: Fix Gradle Settings
         run: |
           cd android
-          # Perbaikan utama
-          sed -i '/capacitor-android/d' settings.gradle 2>/dev/null || true
+          
+          # Fix capacitor-android path
           echo "include ':capacitor-android'" >> settings.gradle
           echo "project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')" >> settings.gradle
-
+          
           chmod +x gradlew
 
       - name: Build Debug APK
         run: |
           cd android
           ./gradlew assembleDebug --stacktrace
+          
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yanz-ai-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
