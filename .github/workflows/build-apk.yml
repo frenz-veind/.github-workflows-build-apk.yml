@@ -15,10 +15,9 @@ jobs:
         with:
           node-version: 22
 
-      - name: Init npm & Install Capacitor
+      - name: Install Capacitor
         run: |
-          npm init -y --scope=yanzai || true
-          npm pkg set name="yanz-ai"
+          echo '{"name":"yanz-ai","version":"1.0.0"}' > package.json
           npm install @capacitor/core @capacitor/cli @capacitor/android
 
       - name: Add Android Platform
