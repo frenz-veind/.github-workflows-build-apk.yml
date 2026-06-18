@@ -20,14 +20,14 @@ jobs:
           echo '{"name":"yanz-ai","version":"1.0.0"}' > package.json
           npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      - name: Init Capacitor
-        run: npx cap init "Yanz AI" "com.yanz.ai" --web-dir www
+      - name: Write Capacitor Config
+        run: |
+          echo '{"appId":"com.yanz.ai","appName":"Yanz AI","webDir":"www","backgroundColor":"#05070d"}' > capacitor.config.json
 
-      - name: Add Android Platform
-        run: npx cap add android
-
-      - name: Sync
-        run: npx cap sync android
+      - name: Add Android & Copy
+        run: |
+          npx cap add android
+          npx cap copy android
 
       - name: Build APK
         run: |
