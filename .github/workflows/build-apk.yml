@@ -7,47 +7,40 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20  # atau 22, tapi 20 lebih stabil untuk Capacitor 5
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: 17
 
-      - name: Install Capacitor
+      - name: Install dependencies & Capacitor
         run: |
-          echo '{"name":"yanz-ai","version":"1.0.0"}' > package.json
-          npm install @capacitor/core@5 @capacitor/cli@5 @capacitor/android@5
+          npm ci  # lebih baik daripada manual create package.json
+          npx cap add android || echo "Android platform already exists"
 
-      - name: Write Capacitor Config
-        run: |
-          echo '{"appId":"com.yanz.ai","appName":"Yanz AI","webDir":"www","backgroundColor":"#05070d"}' > capacitor.config.json
-
-      - name: Add Android
-        run: npx cap add android
-
-      - name: Copy Web Assets
+      - name: Copy assets
         run: npx cap copy android
 
-      - name: Fix missing gradle script
-        run: |
-          echo "file('./../../node_modules/@capacitor/android/capacitor/build.gradle')" > android/capacitor.settings.gradle
-
-      - name: Build APK
+      - name: Fix Gradle settings
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          # Perbaikan utama
+          sed -i '/capacitor-android/d' settings.gradle 2>/dev/null || true
+          echo "include ':capacitor-android'" >> settings.gradle
+          echo "project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')" >> settings.gradle
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: yanz-ai-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          chmod +x gradlew
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug --stacktrace
