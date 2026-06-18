@@ -36,6 +36,10 @@ jobs:
       - name: Copy Web Assets
         run: npx cap copy android
 
+      - name: Fix missing gradle script
+        run: |
+          echo "file('./../../node_modules/@capacitor/android/capacitor/build.gradle')" > android/capacitor.settings.gradle
+
       - name: Build APK
         run: |
           cd android
