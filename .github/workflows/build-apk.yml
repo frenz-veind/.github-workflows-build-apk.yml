@@ -24,7 +24,7 @@ jobs:
       - name: Install Capacitor
         run: |
           echo '{"name":"yanz-ai","version":"1.0.0"}' > package.json
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@5 @capacitor/cli@5 @capacitor/android@5
 
       - name: Write Capacitor Config
         run: |
