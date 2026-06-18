@@ -13,14 +13,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: Install Capacitor
+      - name: Init npm & Install Capacitor
         run: |
+          npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
 
       - name: Add Android Platform
         run: npx cap add android
+
+      - name: Sync
+        run: npx cap sync android
 
       - name: Build APK
         run: |
